@@ -64,7 +64,6 @@ function Friends({ list, selectFriend }) {
 
 function FriendProfile({ list, selectFriend }) {
   function selectedFriend(index) {
-    console.log(index);
     selectFriend(index);
   }
 
@@ -73,7 +72,7 @@ function FriendProfile({ list, selectFriend }) {
       {list.map((profile, index) => {
         const { id, name, image, balance } = profile;
         return (
-          <li key={id}>
+          <li key={id} className="sidebar">
             <img alt={name} src={image} />
             <h3 id={name}>{name}</h3>
             {balance > 0 ? (
@@ -105,7 +104,7 @@ function FriendProfile({ list, selectFriend }) {
 function AddFriendButton({ addFriendButtonVisible, onToggle }) {
   return (
     <button
-      className="button"
+      className="button sidebar"
       onClick={() => onToggle(!addFriendButtonVisible)}
     >
       Add friend
@@ -166,9 +165,11 @@ function BillCalculations({ selectedFriend, list }) {
 
   return (
     <form className="form-split-bill">
-      <h3>SPLIT A BILL WITH {name.toUpperCase()}</h3>
+      <h2>SPLIT A BILL WITH {name.toUpperCase()}</h2>
       <div>
-        <label for="bill value">Bill value:</label>
+        <label for="bill value">
+          <span>Bill value:</span>
+        </label>
         <input
           type="number"
           value={billValue}
