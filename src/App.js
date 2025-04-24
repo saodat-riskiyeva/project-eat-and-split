@@ -25,10 +25,17 @@ const initialFriends = [
 export default function App() {
   const [listOfFriends, setFriendList] = useState(initialFriends);
   const [addFriendButton, setAddFriendForm] = useState(true);
+  const [selectedFriend, setSelectedFriend] = useState("");
 
   return (
     <div className="app">
-      <Friends list={listOfFriends} />
+      <Friends list={listOfFriends} selectFriend={setSelectedFriend} />
+      {selectedFriend && (
+        <BillCalculations
+          selectedFriend={selectedFriend}
+          list={listOfFriends}
+        />
+      )}
       {addFriendButton && (
         <AddFriendButton
           addFriendButtonVisible={addFriendButton}
@@ -43,23 +50,27 @@ export default function App() {
           updatedList={setFriendList}
         />
       )}
-      <BillCalculations />
     </div>
   );
 }
 
-function Friends({ list }) {
+function Friends({ list, selectFriend }) {
   return (
     <ul className="sidebar">
-      <FriendProfile list={list} />
+      <FriendProfile list={list} selectFriend={selectFriend} />
     </ul>
   );
 }
 
-function FriendProfile({ list }) {
+function FriendProfile({ list, selectFriend }) {
+  function selectedFriend(index) {
+    console.log(index);
+    selectFriend(index);
+  }
+
   return (
     <div>
-      {list.map((profile) => {
+      {list.map((profile, index) => {
         const { id, name, image, balance } = profile;
         return (
           <li key={id}>
@@ -77,7 +88,13 @@ function FriendProfile({ list }) {
               <p>You and {name} are even </p>
             )}
 
-            <button className="button"> Select </button>
+            <button
+              className="button"
+              value={index}
+              onClick={(e) => selectedFriend(e.target.value)}
+            >
+              Select
+            </button>
           </li>
         );
       })}
@@ -137,10 +154,41 @@ function AddFriendForm({
   );
 }
 
-function BillCalculations() {
+function BillCalculations({ selectedFriend, list }) {
+  const [billValue, setBillValue] = useState("");
+
+  const friend = list[selectedFriend];
+  const { name } = friend;
+
+  function handleBillValue(event) {
+    setBillValue(event.target.value);
+  }
+
   return (
     <form className="form-split-bill">
-      Split a bill with Anthony
+      <h3>SPLIT A BILL WITH {name.toUpperCase()}</h3>
+      <div>
+        <label for="bill value">Bill value:</label>
+        <input
+          type="number"
+          value={billValue}
+          onChange={handleBillValue}
+        ></input>
+      </div>
+      <div>
+        <label for="my expenses">Your expenses:</label>
+        <input type="number"></input>
+      </div>
+
+      <label for="friends expenses">{name}'s expenses:</label>
+      <input type="number"></input>
+      <div>
+        <label for="payer">Who's paying the bill?</label>
+        <select id="payer">
+          <option value="you">You</option>
+          <option value={name}>{name}</option>
+        </select>
+      </div>
       <button className="button"> Split bill </button>
     </form>
   );
