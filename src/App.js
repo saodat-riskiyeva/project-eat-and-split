@@ -1,5 +1,4 @@
 import { useState } from "react";
-import DateTimePicker from "react";
 
 const initialFriends = [
   {
@@ -134,9 +133,9 @@ function AddFriendForm({
   return (
     <div>
       <form className="form-add-friend" onSubmit={(e) => handleAddFriend(e)}>
-        <div>Friend name</div>
+        <div>👫Friend name</div>
         <input type="text" name="friendName" />
-        <div>Image URL</div>
+        <div>🖼️Image URL</div>
         <input type="text" name="friendImageUrl" />
         <button className="button" type="submit">
           Add
@@ -155,6 +154,8 @@ function AddFriendForm({
 
 function BillCalculations({ selectedFriend, list }) {
   const [billValue, setBillValue] = useState("");
+  const [myExpenses, setMyExpenses] = useState("");
+  const [friendsExpenses, setFriendsExpenses] = useState("");
 
   const friend = list[selectedFriend];
   const { name } = friend;
@@ -163,34 +164,54 @@ function BillCalculations({ selectedFriend, list }) {
     setBillValue(event.target.value);
   }
 
+  function handleMyExpenses(event) {
+    setMyExpenses(event.target.value);
+  }
+
+  function handleFriendsExpenses(event) {
+    setFriendsExpenses(event.target.value);
+  }
+
+  function handleSplitBill(e) {
+    console.log(e);
+  }
   return (
     <form className="form-split-bill">
       <h2>SPLIT A BILL WITH {name.toUpperCase()}</h2>
-      <div>
-        <label for="bill value">
-          <span>Bill value:</span>
-        </label>
+      <>
+        <h4 for="bill value">💰Bill value:</h4>
         <input
           type="number"
           value={billValue}
-          onChange={handleBillValue}
+          onChange={(e) => handleBillValue(e)}
         ></input>
-      </div>
-      <div>
-        <label for="my expenses">Your expenses:</label>
-        <input type="number"></input>
-      </div>
-
-      <label for="friends expenses">{name}'s expenses:</label>
-      <input type="number"></input>
-      <div>
-        <label for="payer">Who's paying the bill?</label>
+      </>
+      <>
+        <h4 for="my expenses">🧍Your expenses:</h4>
+        <input
+          type="number"
+          value={myExpenses}
+          onChange={(e) => handleMyExpenses(e)}
+        ></input>
+      </>
+      <>
+        <h4 for="friends expenses">👫{name}'s expenses:</h4>
+        <input
+          type="number"
+          value={friendsExpenses}
+          onChange={(e) => handleFriendsExpenses(e)}
+        ></input>
+      </>
+      <>
+        <h4 for="payer">🤑Who's paying the bill?</h4>
         <select id="payer">
           <option value="you">You</option>
           <option value={name}>{name}</option>
         </select>
-      </div>
-      <button className="button"> Split bill </button>
+      </>
+      <button className="button" onClick={(e) => handleSplitBill(e)}>
+        Split bill
+      </button>
     </form>
   );
 }
