@@ -155,11 +155,10 @@ function AddFriendForm({
 function BillCalculations({ selectedFriend, list }) {
   const [billValue, setBillValue] = useState("");
   const [myExpenses, setMyExpenses] = useState("");
-  const [friendsExpenses, setFriendsExpenses] = useState("");
-  const [incorrectBillSign, setIncorrectBillSign] = useState(false);
 
   const friend = list[selectedFriend];
   const { name } = friend;
+  const friendExpenses = Number(billValue - myExpenses);
 
   function handleBillValue(data) {
     setBillValue(data);
@@ -169,13 +168,8 @@ function BillCalculations({ selectedFriend, list }) {
     setMyExpenses(data);
   }
 
-  function handleFriendsExpenses(data) {
-    setFriendsExpenses(data);
-  }
-
   function handleSplitBill(e) {
     e.preventDefault();
-    setIncorrectBillSign(myExpenses + friendsExpenses !== billValue);
   }
 
   return (
@@ -199,11 +193,7 @@ function BillCalculations({ selectedFriend, list }) {
       </>
       <>
         <h4 for="friends expenses">👫{name}'s expenses:</h4>
-        <input
-          type="number"
-          value={friendsExpenses}
-          onChange={(e) => handleFriendsExpenses(Number(e.target.value))}
-        ></input>
+        <input type="number" value={friendExpenses}></input>
       </>
       <>
         <h4 for="payer">🤑Who's paying the bill?</h4>
@@ -211,11 +201,6 @@ function BillCalculations({ selectedFriend, list }) {
           <option value="you">You</option>
           <option value={name}>{name}</option>
         </select>
-      </>
-      <>
-        {incorrectBillSign && (
-          <h4 className="red">The Bill is split incorrectly</h4>
-        )}
       </>
       <button className="button" onClick={(e) => handleSplitBill(e)}>
         Split bill
