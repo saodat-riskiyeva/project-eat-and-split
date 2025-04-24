@@ -43,6 +43,7 @@ export default function App() {
           updatedList={setFriendList}
         />
       )}
+      <BillCalculations />
     </div>
   );
 }
