@@ -155,18 +155,20 @@ function AddFriendForm({
 function BillCalculations({ selectedFriend, list }) {
   const [billValue, setBillValue] = useState("");
   const [myExpenses, setMyExpenses] = useState("");
+  const [friendExpenses, setFriendsExpenses] = useState("");
   const [selectedPayer, setSelectedPayer] = useState("1");
 
   const friend = list[selectedFriend];
   const { name } = friend;
-  const friendExpenses = Number(billValue - myExpenses);
 
   function handleBillValue(data) {
     setBillValue(data);
+    setFriendsExpenses(Number(billValue - myExpenses));
   }
 
   function handleMyExpenses(data) {
     setMyExpenses(data);
+    setFriendsExpenses(Number(billValue - myExpenses));
   }
 
   function handleSplitBill(e) {
@@ -174,11 +176,10 @@ function BillCalculations({ selectedFriend, list }) {
   }
 
   function handleSelectedPayer(e) {
-    console.log(e);
     e.preventDefault();
-
     setSelectedPayer(e.target.value);
   }
+
   return (
     <form className="form-split-bill">
       <h2>SPLIT A BILL WITH {name.toUpperCase()}</h2>
@@ -195,12 +196,12 @@ function BillCalculations({ selectedFriend, list }) {
         <input
           type="number"
           value={myExpenses}
-          onChange={(e) => handleMyExpenses(Number(e.target.value))}
+          onChange={(e) => handleMyExpenses(e.target.value)}
         ></input>
       </>
       <>
         <h4>👫{name}'s expenses:</h4>
-        <input type="number" defaultValue={friendExpenses}></input>
+        <input type="number" value={friendExpenses} readOnly></input>
       </>
       <>
         <h4>🤑Who's paying the bill?</h4>
