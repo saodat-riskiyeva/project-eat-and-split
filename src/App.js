@@ -162,22 +162,33 @@ function BillCalculations({ selectedFriend, list }) {
   const { name } = friend;
 
   function handleBillValue(data) {
-    setBillValue(data);
+    setBillValue(Number(data));
     setFriendsExpenses(Number(billValue - myExpenses));
   }
 
   function handleMyExpenses(data) {
-    setMyExpenses(data);
+    setMyExpenses(Number(data));
     setFriendsExpenses(Number(billValue - myExpenses));
-  }
-
-  function handleSplitBill(e) {
-    e.preventDefault();
   }
 
   function handleSelectedPayer(e) {
     e.preventDefault();
     setSelectedPayer(e.target.value);
+  }
+
+  function handleSplitBill(e) {
+    e.preventDefault();
+    // console.log(friend);
+    // console.log(typeof myExpenses);
+    // console.log(friend.balance);
+    // console.log(friendExpenses);
+    // console.log(Number(friend.balance - friendExpenses));
+    friend.balance =
+      selectedPayer === 1
+        ? Number(friend.balance - friendExpenses)
+        : Number(friend.balance + myExpenses);
+
+    // console.log(friend);
   }
 
   return (
