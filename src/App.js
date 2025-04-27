@@ -23,17 +23,23 @@ const initialFriends = [
 
 export default function App() {
   const [listOfFriends, setFriendList] = useState(initialFriends);
-  const [addFriendButton, setAddFriendForm] = useState(true);
   const [selectedFriend, setSelectedFriend] = useState("");
+  const [addFriendButton, setAddFriendForm] = useState(true);
+  const [splitBillFormOpen, setSplitBillFormOpen] = useState(false);
 
   return (
     <div className="app">
-      <Friends listOfFriends={listOfFriends} selectFriend={setSelectedFriend} />
-      {selectedFriend && (
+      <Friends
+        listOfFriends={listOfFriends}
+        selectFriend={setSelectedFriend}
+        splitBillFormOpen={setSplitBillFormOpen}
+      />
+      {selectedFriend && splitBillFormOpen && (
         <BillCalculations
           selectedFriend={selectedFriend}
           list={listOfFriends}
           updatedList={setFriendList}
+          splitBillFormOpen={setSplitBillFormOpen}
         />
       )}
       {addFriendButton && (
@@ -46,7 +52,6 @@ export default function App() {
         <AddFriendForm
           addFriendButtonVisible={addFriendButton}
           onToggle={setAddFriendForm}
-          currentList={listOfFriends}
           updatedList={setFriendList}
         />
       )}
@@ -54,19 +59,21 @@ export default function App() {
   );
 }
 
-function Friends({ listOfFriends, selectFriend }) {
+function Friends({ listOfFriends, selectFriend, splitBillFormOpen }) {
   return (
     <ul className="sidebar">
       <FriendProfile
         listOfFriends={listOfFriends}
         selectFriend={selectFriend}
+        splitBillFormOpen={splitBillFormOpen}
       />
     </ul>
   );
 }
 
-function FriendProfile({ listOfFriends, selectFriend }) {
+function FriendProfile({ listOfFriends, selectFriend, splitBillFormOpen }) {
   function selectedFriend(index) {
+    splitBillFormOpen(true);
     selectFriend(index);
   }
 
@@ -115,12 +122,7 @@ function AddFriendButton({ addFriendButtonVisible, onToggle }) {
   );
 }
 
-function AddFriendForm({
-  addFriendButtonVisible,
-  onToggle,
-  currentList,
-  updatedList,
-}) {
+function AddFriendForm({ addFriendButtonVisible, onToggle, updatedList }) {
   function handleAddFriend(event) {
     updatedList((currentList) => [
       ...currentList,
@@ -156,7 +158,12 @@ function AddFriendForm({
   );
 }
 
-function BillCalculations({ selectedFriend, list, updatedList }) {
+function BillCalculations({
+  selectedFriend,
+  list,
+  updatedList,
+  splitBillFormOpen,
+}) {
   const [billValue, setBillValue] = useState("");
   const [myExpenses, setMyExpenses] = useState("");
   const [friendExpenses, setFriendsExpenses] = useState("");
@@ -182,13 +189,16 @@ function BillCalculations({ selectedFriend, list, updatedList }) {
 
   function handleSplitBill(e) {
     e.preventDefault();
+    const updatedBalance =
+      selectedPayer === "1"
+        ? Number(list[selectedFriend].balance - friendExpenses)
+        : Number(list[selectedFriend].balance + myExpenses);
 
-    updatedList(
-      (list[selectedFriend].balance =
-        selectedPayer === "1"
-          ? Number(list[selectedFriend].balance - friendExpenses)
-          : Number(list[selectedFriend].balance + myExpenses))
-    );
+    list[selectedFriend].balance = updatedBalance;
+
+    updatedList(list);
+    // closing the split Bill form
+    splitBillFormOpen(false);
   }
 
   return (
