@@ -222,7 +222,12 @@ function BillCalculations({
       </>
       <>
         <h4>👫{name}'s expenses:</h4>
-        <input type="text" value={friendExpenses} readOnly></input>
+        <input
+          type="text"
+          value={friendExpenses}
+          id="friend-expenses"
+          readOnly
+        ></input>
       </>
       <>
         <h4>🤑Who's paying the bill?</h4>

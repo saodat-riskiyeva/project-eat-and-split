@@ -175,7 +175,7 @@ form h2 {
   margin-bottom: 1.6rem;
 }
 
-input[type="text"],
+#friend-expenses,
 textarea {
   background-color: var(--color-lightest);
 }
