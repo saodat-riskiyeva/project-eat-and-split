@@ -28,11 +28,12 @@ export default function App() {
 
   return (
     <div className="app">
-      <Friends list={listOfFriends} selectFriend={setSelectedFriend} />
+      <Friends listOfFriends={listOfFriends} selectFriend={setSelectedFriend} />
       {selectedFriend && (
         <BillCalculations
           selectedFriend={selectedFriend}
           list={listOfFriends}
+          updatedList={setFriendList}
         />
       )}
       {addFriendButton && (
@@ -53,22 +54,25 @@ export default function App() {
   );
 }
 
-function Friends({ list, selectFriend }) {
+function Friends({ listOfFriends, selectFriend }) {
   return (
     <ul className="sidebar">
-      <FriendProfile list={list} selectFriend={selectFriend} />
+      <FriendProfile
+        listOfFriends={listOfFriends}
+        selectFriend={selectFriend}
+      />
     </ul>
   );
 }
 
-function FriendProfile({ list, selectFriend }) {
+function FriendProfile({ listOfFriends, selectFriend }) {
   function selectedFriend(index) {
     selectFriend(index);
   }
 
   return (
     <div>
-      {list.map((profile, index) => {
+      {listOfFriends.map((profile, index) => {
         const { id, name, image, balance } = profile;
         return (
           <li key={id} className="sidebar">
@@ -152,7 +156,7 @@ function AddFriendForm({
   );
 }
 
-function BillCalculations({ selectedFriend, list }) {
+function BillCalculations({ selectedFriend, list, updatedList }) {
   const [billValue, setBillValue] = useState("");
   const [myExpenses, setMyExpenses] = useState("");
   const [friendExpenses, setFriendsExpenses] = useState("");
@@ -178,17 +182,13 @@ function BillCalculations({ selectedFriend, list }) {
 
   function handleSplitBill(e) {
     e.preventDefault();
-    // console.log(friend);
-    // console.log(typeof myExpenses);
-    // console.log(friend.balance);
-    // console.log(friendExpenses);
-    // console.log(Number(friend.balance - friendExpenses));
-    friend.balance =
-      selectedPayer === 1
-        ? Number(friend.balance - friendExpenses)
-        : Number(friend.balance + myExpenses);
 
-    // console.log(friend);
+    updatedList(
+      (list[selectedFriend].balance =
+        selectedPayer === "1"
+          ? Number(list[selectedFriend].balance - friendExpenses)
+          : Number(list[selectedFriend].balance + myExpenses))
+    );
   }
 
   return (
