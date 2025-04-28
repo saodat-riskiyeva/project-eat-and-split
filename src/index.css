@@ -174,8 +174,3 @@ form h2 {
   letter-spacing: -0.5px;
   margin-bottom: 1.6rem;
 }
-
-#friend-expenses,
-textarea {
-  background-color: var(--color-lightest);
-}

@@ -43,7 +43,7 @@ export default function App() {
           />
         )}
         {addFriendButton || (
-          <AddFriendForm
+          <FormAddFriend
             addFriendButtonVisible={addFriendButton}
             onToggle={setAddFriendForm}
             updatedList={setFriendList}
@@ -51,7 +51,7 @@ export default function App() {
         )}
       </div>
       {selectedFriend && splitBillFormOpen && (
-        <BillCalculations
+        <FormSplitBill
           selectedFriend={selectedFriend}
           friends={friends}
           updatedList={setFriendList}
@@ -124,7 +124,12 @@ function AddFriendButton({ addFriendButtonVisible, onToggle }) {
   );
 }
 
-function AddFriendForm({ addFriendButtonVisible, onToggle, updatedList }) {
+// To be used in the future
+// function Button({ children }) {
+//   return <button className="button"> {children} </button>;
+// }
+
+function FormAddFriend({ addFriendButtonVisible, onToggle, updatedList }) {
   function handleAddFriend(event) {
     updatedList((currentList) => [
       ...currentList,
@@ -141,10 +146,11 @@ function AddFriendForm({ addFriendButtonVisible, onToggle, updatedList }) {
   return (
     <div>
       <form className="form-add-friend" onSubmit={(e) => handleAddFriend(e)}>
-        <div>👫Friend name</div>
+        <label>👫Friend name</label>
         <input type="text" name="friendName" />
-        <div>🖼️Image URL</div>
+        <label>🖼️Image URL</label>
         <input type="text" name="friendImageUrl" />
+
         <button className="button" type="submit">
           Add
         </button>
@@ -160,7 +166,7 @@ function AddFriendForm({ addFriendButtonVisible, onToggle, updatedList }) {
   );
 }
 
-function BillCalculations({
+function FormSplitBill({
   selectedFriend,
   friends,
   updatedList,
@@ -207,7 +213,7 @@ function BillCalculations({
     <form className="form-split-bill">
       <h2>SPLIT A BILL WITH {name.toUpperCase()}</h2>
       <>
-        <h4>💰Bill value:</h4>
+        <label>💰Bill value:</label>
         <input
           type="number"
           value={billValue}
@@ -215,7 +221,7 @@ function BillCalculations({
         ></input>
       </>
       <>
-        <h4>🧍Your expenses:</h4>
+        <label>🧍Your expenses:</label>
         <input
           type="number"
           value={myExpenses}
@@ -223,16 +229,11 @@ function BillCalculations({
         ></input>
       </>
       <>
-        <h4>👫{name}'s expenses:</h4>
-        <input
-          type="text"
-          value={friendExpenses}
-          id="friend-expenses"
-          readOnly
-        ></input>
+        <label>👫{name}'s expenses:</label>
+        <input type="text" value={friendExpenses} disabled></input>
       </>
       <>
-        <h4>🤑Who's paying the bill?</h4>
+        <label>🤑Who's paying the bill?</label>
         <select
           id="payer"
           value={selectedPayer}
