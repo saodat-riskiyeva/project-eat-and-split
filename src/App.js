@@ -22,91 +22,93 @@ const initialFriends = [
 ];
 
 export default function App() {
-  const [listOfFriends, setFriendList] = useState(initialFriends);
+  const [friends, setFriendList] = useState(initialFriends);
   const [selectedFriend, setSelectedFriend] = useState("");
   const [addFriendButton, setAddFriendForm] = useState(true);
   const [splitBillFormOpen, setSplitBillFormOpen] = useState(false);
 
   return (
     <div className="app">
-      <Friends
-        listOfFriends={listOfFriends}
-        selectFriend={setSelectedFriend}
-        splitBillFormOpen={setSplitBillFormOpen}
-      />
+      <div className="sidebar">
+        <FriendsList
+          friends={friends}
+          selectFriend={setSelectedFriend}
+          splitBillFormOpen={setSplitBillFormOpen}
+        />
+
+        {addFriendButton && (
+          <AddFriendButton
+            addFriendButtonVisible={addFriendButton}
+            onToggle={setAddFriendForm}
+          />
+        )}
+        {addFriendButton || (
+          <AddFriendForm
+            addFriendButtonVisible={addFriendButton}
+            onToggle={setAddFriendForm}
+            updatedList={setFriendList}
+          />
+        )}
+      </div>
       {selectedFriend && splitBillFormOpen && (
         <BillCalculations
           selectedFriend={selectedFriend}
-          list={listOfFriends}
+          friends={friends}
           updatedList={setFriendList}
           splitBillFormOpen={setSplitBillFormOpen}
-        />
-      )}
-      {addFriendButton && (
-        <AddFriendButton
-          addFriendButtonVisible={addFriendButton}
-          onToggle={setAddFriendForm}
-        />
-      )}
-      {addFriendButton || (
-        <AddFriendForm
-          addFriendButtonVisible={addFriendButton}
-          onToggle={setAddFriendForm}
-          updatedList={setFriendList}
         />
       )}
     </div>
   );
 }
 
-function Friends({ listOfFriends, selectFriend, splitBillFormOpen }) {
+function FriendsList({ friends, selectFriend, splitBillFormOpen }) {
   return (
-    <ul className="sidebar">
-      <FriendProfile
-        listOfFriends={listOfFriends}
-        selectFriend={selectFriend}
-        splitBillFormOpen={splitBillFormOpen}
-      />
+    <ul>
+      {friends.map((friend, index) => (
+        <Friend
+          friend={friend}
+          selectFriend={selectFriend}
+          splitBillFormOpen={splitBillFormOpen}
+          index={index}
+        />
+      ))}
     </ul>
   );
 }
 
-function FriendProfile({ listOfFriends, selectFriend, splitBillFormOpen }) {
+function Friend({ friend, selectFriend, splitBillFormOpen, index }) {
   function selectedFriend(index) {
     splitBillFormOpen(true);
     selectFriend(index);
   }
+  const { id, name, image, balance } = friend;
 
   return (
     <div>
-      {listOfFriends.map((profile, index) => {
-        const { id, name, image, balance } = profile;
-        return (
-          <li key={id} className="sidebar">
-            <img alt={name} src={image} />
-            <h3 id={name}>{name}</h3>
-            {balance > 0 ? (
-              <p className="red" key={id}>
-                You owe {name} {Math.abs(balance)}$
-              </p>
-            ) : balance < 0 ? (
-              <p className="green">
-                {name} owes you {Math.abs(balance)}$
-              </p>
-            ) : (
-              <p>You and {name} are even </p>
-            )}
+      <li key={id}>
+        <img alt={name} src={image} />
+        <h3 id={name}>{name}</h3>
+        {balance < 0 ? (
+          <p className="red" key={id}>
+            You owe {name} {Math.abs(balance)}$
+          </p>
+        ) : balance > 0 ? (
+          <p className="green">
+            {name} owes you {Math.abs(balance)}$
+          </p>
+        ) : (
+          <p>You and {name} are even </p>
+        )}
 
-            <button
-              className="button"
-              value={index}
-              onClick={(e) => selectedFriend(e.target.value)}
-            >
-              Select
-            </button>
-          </li>
-        );
-      })}
+        <button
+          className="button"
+          value={index}
+          onClick={(e) => selectedFriend(e.target.value)}
+        >
+          Select
+        </button>
+      </li>
     </div>
   );
 }
@@ -114,7 +116,7 @@ function FriendProfile({ listOfFriends, selectFriend, splitBillFormOpen }) {
 function AddFriendButton({ addFriendButtonVisible, onToggle }) {
   return (
     <button
-      className="button sidebar"
+      className="button"
       onClick={() => onToggle(!addFriendButtonVisible)}
     >
       Add friend
@@ -160,7 +162,7 @@ function AddFriendForm({ addFriendButtonVisible, onToggle, updatedList }) {
 
 function BillCalculations({
   selectedFriend,
-  list,
+  friends,
   updatedList,
   splitBillFormOpen,
 }) {
@@ -169,7 +171,7 @@ function BillCalculations({
   const [friendExpenses, setFriendsExpenses] = useState("");
   const [selectedPayer, setSelectedPayer] = useState("1");
 
-  const friend = list[selectedFriend];
+  const friend = friends[selectedFriend];
   const { name } = friend;
 
   function handleBillValue(data) {
@@ -191,12 +193,12 @@ function BillCalculations({
     e.preventDefault();
     const updatedBalance =
       selectedPayer === "1"
-        ? Number(list[selectedFriend].balance - friendExpenses)
-        : Number(list[selectedFriend].balance + myExpenses);
+        ? Number(friends[selectedFriend].balance - friendExpenses)
+        : Number(friends[selectedFriend].balance + myExpenses);
 
-    list[selectedFriend].balance = updatedBalance;
+    friends[selectedFriend].balance = updatedBalance;
 
-    updatedList(list);
+    updatedList(friends);
     // closing the split Bill form
     splitBillFormOpen(false);
   }
