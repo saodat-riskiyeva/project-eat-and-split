@@ -21,11 +21,23 @@ const initialFriends = [
   },
 ];
 
+function Button({ children, onClick }) {
+  return (
+    <button className="button" onClick={onClick}>
+      {children}
+    </button>
+  );
+}
+
 export default function App() {
-  const [friends, setFriendList] = useState(initialFriends);
+  const [friends, setFriends] = useState(initialFriends);
   const [selectedFriend, setSelectedFriend] = useState("");
-  const [addFriendButton, setAddFriendForm] = useState(true);
+  const [showAddFriend, setShowAddFriend] = useState(false);
   const [splitBillFormOpen, setSplitBillFormOpen] = useState(false);
+
+  function handleShowAddFriend() {
+    setShowAddFriend(!showAddFriend);
+  }
 
   return (
     <div className="app">
@@ -35,26 +47,22 @@ export default function App() {
           selectFriend={setSelectedFriend}
           splitBillFormOpen={setSplitBillFormOpen}
         />
-
-        {addFriendButton && (
-          <AddFriendButton
-            addFriendButtonVisible={addFriendButton}
-            onToggle={setAddFriendForm}
-          />
-        )}
-        {addFriendButton || (
+        {showAddFriend && (
           <FormAddFriend
-            addFriendButtonVisible={addFriendButton}
-            onToggle={setAddFriendForm}
-            updatedList={setFriendList}
+            addFriendButtonVisible={showAddFriend}
+            onToggle={setShowAddFriend}
+            updatedList={setFriends}
           />
         )}
+        <Button onClick={handleShowAddFriend}>
+          {showAddFriend ? "Close" : "Add Friend"}
+        </Button>
       </div>
       {selectedFriend && splitBillFormOpen && (
         <FormSplitBill
           selectedFriend={selectedFriend}
           friends={friends}
-          updatedList={setFriendList}
+          updatedList={setFriends}
           splitBillFormOpen={setSplitBillFormOpen}
         />
       )}
@@ -113,22 +121,6 @@ function Friend({ friend, selectFriend, splitBillFormOpen, index }) {
   );
 }
 
-function AddFriendButton({ addFriendButtonVisible, onToggle }) {
-  return (
-    <button
-      className="button"
-      onClick={() => onToggle(!addFriendButtonVisible)}
-    >
-      Add friend
-    </button>
-  );
-}
-
-// To be used in the future
-// function Button({ children }) {
-//   return <button className="button"> {children} </button>;
-// }
-
 function FormAddFriend({ addFriendButtonVisible, onToggle, updatedList }) {
   function handleAddFriend(event) {
     updatedList((currentList) => [
@@ -155,13 +147,6 @@ function FormAddFriend({ addFriendButtonVisible, onToggle, updatedList }) {
           Add
         </button>
       </form>
-
-      <button
-        className="button"
-        onClick={() => onToggle(!addFriendButtonVisible)}
-      >
-        Close
-      </button>
     </div>
   );
 }
