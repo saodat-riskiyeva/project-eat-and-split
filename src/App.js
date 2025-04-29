@@ -30,39 +30,40 @@ function Button({ children, onClick }) {
 }
 
 export default function App() {
-  const [friends, setFriends] = useState(initialFriends);
+  const [currentFriendsList, setCurrentFriendsList] = useState(initialFriends);
   const [selectedFriend, setSelectedFriend] = useState("");
-  const [showAddFriend, setShowAddFriend] = useState(false);
+  const [showAddFriendForm, setShowAddFriendForm] = useState(false);
   const [splitBillFormOpen, setSplitBillFormOpen] = useState(false);
 
   function handleShowAddFriend() {
-    setShowAddFriend(!showAddFriend);
+    // Handle the state of the "Add Friend" Form
+    setShowAddFriendForm(!showAddFriendForm);
   }
 
   return (
     <div className="app">
       <div className="sidebar">
         <FriendsList
-          friends={friends}
+          currentFriendsList={currentFriendsList}
           selectFriend={setSelectedFriend}
           splitBillFormOpen={setSplitBillFormOpen}
         />
-        {showAddFriend && (
+        {showAddFriendForm && (
           <FormAddFriend
-            addFriendButtonVisible={showAddFriend}
-            onToggle={setShowAddFriend}
-            updatedList={setFriends}
+            showAddFriendForm={showAddFriendForm}
+            onToggle={setShowAddFriendForm}
+            setCurrentFriendsList={setCurrentFriendsList}
           />
         )}
         <Button onClick={handleShowAddFriend}>
-          {showAddFriend ? "Close" : "Add Friend"}
+          {showAddFriendForm ? "Close" : "Add Friend"}
         </Button>
       </div>
       {selectedFriend && splitBillFormOpen && (
         <FormSplitBill
           selectedFriend={selectedFriend}
-          friends={friends}
-          updatedList={setFriends}
+          currentFriendsList={currentFriendsList}
+          setCurrentFriendsList={setCurrentFriendsList}
           splitBillFormOpen={setSplitBillFormOpen}
         />
       )}
@@ -70,10 +71,10 @@ export default function App() {
   );
 }
 
-function FriendsList({ friends, selectFriend, splitBillFormOpen }) {
+function FriendsList({ currentFriendsList, selectFriend, splitBillFormOpen }) {
   return (
     <ul>
-      {friends.map((friend, index) => (
+      {currentFriendsList.map((friend, index) => (
         <Friend
           friend={friend}
           selectFriend={selectFriend}
@@ -87,6 +88,7 @@ function FriendsList({ friends, selectFriend, splitBillFormOpen }) {
 
 function Friend({ friend, selectFriend, splitBillFormOpen, index }) {
   function selectedFriend(index) {
+    // "Split Bill" Form is opened when a friend is selected
     splitBillFormOpen(true);
     selectFriend(index);
   }
@@ -121,27 +123,53 @@ function Friend({ friend, selectFriend, splitBillFormOpen, index }) {
   );
 }
 
-function FormAddFriend({ addFriendButtonVisible, onToggle, updatedList }) {
-  function handleAddFriend(event) {
-    updatedList((currentList) => [
-      ...currentList,
-      {
-        id: new Date().getTime().toString(),
-        name: event.target[0].value,
-        image: event.target[1].value,
-        balance: 0,
-      },
-    ]);
+function FormAddFriend({ showAddFriendForm, onToggle, setCurrentFriendsList }) {
+  const [newFriendsName, setNewFriendsName] = useState("");
+  const [newFriendsImage, setNewFriendsImage] = useState(
+    "https://i.pravatar.cc/48?u="
+  );
 
-    onToggle(!addFriendButtonVisible);
+  function handleAddFriend(e) {
+    // Prevent re-load of the whole page
+    e.preventDefault();
+
+    // Validating creation of a name and image for a new friend
+    if (!newFriendsName || !newFriendsImage) return;
+
+    // Generate ID for a new friend
+    const newFriendsId = crypto.randomUUID();
+
+    // Creating a record for a new friend
+    const newFriend = {
+      id: newFriendsId,
+      // new Date().getTime().toString() - other possible way of making a unique record id
+      name: newFriendsName,
+      image: `${newFriendsImage}${newFriendsId}`,
+      balance: 0,
+    };
+
+    // Updating the list of friends
+    setCurrentFriendsList((currentList) => [...currentList, newFriend]);
+
+    // Closing the "Add Friend" Form
+    onToggle(!showAddFriendForm);
   }
+
   return (
     <div>
       <form className="form-add-friend" onSubmit={(e) => handleAddFriend(e)}>
         <label>👫Friend name</label>
-        <input type="text" name="friendName" />
+        <input
+          type="text"
+          value={newFriendsName}
+          onChange={(e) => setNewFriendsName(e.target.value)}
+        />
         <label>🖼️Image URL</label>
-        <input type="text" name="friendImageUrl" />
+        <input
+          type="text"
+          value={newFriendsImage}
+          onChange={(e) => setNewFriendsImage(e.target.value)}
+        />
 
         <button className="button" type="submit">
           Add
@@ -153,8 +181,8 @@ function FormAddFriend({ addFriendButtonVisible, onToggle, updatedList }) {
 
 function FormSplitBill({
   selectedFriend,
-  friends,
-  updatedList,
+  currentFriendsList,
+  setCurrentFriendsList,
   splitBillFormOpen,
 }) {
   const [billValue, setBillValue] = useState("");
@@ -162,7 +190,7 @@ function FormSplitBill({
   const [friendExpenses, setFriendsExpenses] = useState("");
   const [selectedPayer, setSelectedPayer] = useState("1");
 
-  const friend = friends[selectedFriend];
+  const friend = currentFriendsList[selectedFriend];
   const { name } = friend;
 
   function handleBillValue(data) {
@@ -181,16 +209,18 @@ function FormSplitBill({
   }
 
   function handleSplitBill(e) {
+    // Preventing re-loading the whole page
     e.preventDefault();
+
     const updatedBalance =
       selectedPayer === "1"
-        ? Number(friends[selectedFriend].balance - friendExpenses)
-        : Number(friends[selectedFriend].balance + myExpenses);
+        ? Number(currentFriendsList[selectedFriend].balance - friendExpenses)
+        : Number(currentFriendsList[selectedFriend].balance + myExpenses);
 
-    friends[selectedFriend].balance = updatedBalance;
+    currentFriendsList[selectedFriend].balance = updatedBalance;
 
-    updatedList(friends);
-    // closing the split Bill form
+    setCurrentFriendsList(currentFriendsList);
+    // Closing the "Split Bill" Form after the billis split
     splitBillFormOpen(false);
   }
 
