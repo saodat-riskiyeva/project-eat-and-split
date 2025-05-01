@@ -41,8 +41,12 @@ export default function App() {
   }
 
   function handleSelectedFriend(friend) {
-    setSelectedFriend(friend);
-    setSplitBillFormOpen(true);
+    // If current selected friend is the samilar to the one selected - we disable selection
+    setSelectedFriend((cur) => (cur?.id === friend.id ? null : friend));
+
+    setShowAddFriendForm(false);
+    // If a friend is selected, the Split Bill Form is opened
+    setSplitBillFormOpen(friend ? true : false);
   }
 
   return (
@@ -51,7 +55,7 @@ export default function App() {
         <FriendsList
           currentFriendsList={currentFriendsList}
           onSelection={handleSelectedFriend}
-          splitBillFormOpen={setSplitBillFormOpen}
+          selectedFriend={selectedFriend}
         />
         {showAddFriendForm && (
           <FormAddFriend
@@ -67,35 +71,37 @@ export default function App() {
       {selectedFriend && splitBillFormOpen && (
         <FormSplitBill
           selectedFriend={selectedFriend}
-          currentFriendsList={currentFriendsList}
-          setCurrentFriendsList={setCurrentFriendsList}
-          splitBillFormOpen={setSplitBillFormOpen}
+          setSelectedFriend={setSelectedFriend}
+          splitBillFormOpen={splitBillFormOpen}
         />
       )}
     </div>
   );
 }
 
-function FriendsList({ currentFriendsList, onSelection, splitBillFormOpen }) {
+function FriendsList({ currentFriendsList, onSelection, selectedFriend }) {
   return (
     <ul>
       {currentFriendsList.map((friend) => (
         <Friend
+          key={friend.id}
           friend={friend}
           onSelection={onSelection}
-          splitBillFormOpen={splitBillFormOpen}
+          selectedFriend={selectedFriend}
         />
       ))}
     </ul>
   );
 }
 
-function Friend({ friend, onSelection }) {
+function Friend({ friend, onSelection, selectedFriend }) {
+  const isSelected = selectedFriend?.id === friend.id;
+
   const { id, name, image, balance } = friend;
 
   return (
     <div>
-      <li key={id}>
+      <li key={id} className={isSelected ? "selected" : ""}>
         <img alt={name} src={image} />
         <h3 id={name}>{name}</h3>
         {balance < 0 ? (
@@ -110,7 +116,9 @@ function Friend({ friend, onSelection }) {
           <p>You and {name} are even </p>
         )}
 
-        <Button onClick={() => onSelection(friend)}>Select</Button>
+        <Button onClick={() => onSelection(friend)}>
+          {isSelected ? "Close" : "Select"}
+        </Button>
       </li>
     </div>
   );
@@ -174,8 +182,7 @@ function FormAddFriend({ showAddFriendForm, onToggle, setCurrentFriendsList }) {
 
 function FormSplitBill({
   selectedFriend,
-  currentFriendsList,
-  setCurrentFriendsList,
+  setSelectedFriend,
   splitBillFormOpen,
 }) {
   const [billValue, setBillValue] = useState("");
@@ -185,40 +192,45 @@ function FormSplitBill({
 
   const { name } = selectedFriend;
 
+  // Handling the input of Bill Value
   function handleBillValue(data) {
     setBillValue(Number(data));
     setFriendsExpenses(Number(billValue - myExpenses));
   }
 
+  // Handling the input of my expenses
   function handleMyExpenses(data) {
     setMyExpenses(Number(data));
     setFriendsExpenses(Number(billValue - myExpenses));
   }
 
+  // Handling the selection of a Payer
   function handleSelectedPayer(e) {
     e.preventDefault();
     setSelectedPayer(e.target.value);
   }
 
+  // Splitting the bill
   function handleSplitBill(e) {
+    console.log(e);
     // Preventing re-loading the whole page
     e.preventDefault();
 
     const updatedBalance =
       selectedPayer === "1"
-        ? Number(currentFriendsList[selectedFriend].balance - friendExpenses)
-        : Number(currentFriendsList[selectedFriend].balance + myExpenses);
+        ? Number(selectedFriend.balance - friendExpenses)
+        : Number(selectedFriend.balance + myExpenses);
 
-    currentFriendsList[selectedFriend].balance = updatedBalance;
+    selectedFriend.balance = updatedBalance;
 
-    setCurrentFriendsList(currentFriendsList);
     // Closing the "Split Bill" Form after the billis split
     splitBillFormOpen(false);
+    setSelectedFriend(null);
   }
 
   return (
     <form className="form-split-bill">
-      <h2>SPLIT A BILL WITH {name.toUpperCase()}</h2>
+      <h2>SPLIT A BILL WITH {name}</h2>
       <>
         <label>💰Bill value:</label>
         <input
@@ -241,11 +253,7 @@ function FormSplitBill({
       </>
       <>
         <label>🤑Who's paying the bill?</label>
-        <select
-          id="payer"
-          value={selectedPayer}
-          onChange={(e) => handleSelectedPayer(e)}
-        >
+        <select id="payer" onChange={(e) => handleSelectedPayer(e)}>
           <option value="1">You</option>
           <option value="2">{name}</option>
         </select>
