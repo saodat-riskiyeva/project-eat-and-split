@@ -31,7 +31,7 @@ function Button({ children, onClick }) {
 
 export default function App() {
   const [currentFriendsList, setCurrentFriendsList] = useState(initialFriends);
-  const [selectedFriend, setSelectedFriend] = useState("");
+  const [selectedFriend, setSelectedFriend] = useState(null);
   const [showAddFriendForm, setShowAddFriendForm] = useState(false);
   const [splitBillFormOpen, setSplitBillFormOpen] = useState(false);
 
@@ -40,12 +40,17 @@ export default function App() {
     setShowAddFriendForm(!showAddFriendForm);
   }
 
+  function handleSelectedFriend(friend) {
+    setSelectedFriend(friend);
+    setSplitBillFormOpen(true);
+  }
+
   return (
     <div className="app">
       <div className="sidebar">
         <FriendsList
           currentFriendsList={currentFriendsList}
-          selectFriend={setSelectedFriend}
+          onSelection={handleSelectedFriend}
           splitBillFormOpen={setSplitBillFormOpen}
         />
         {showAddFriendForm && (
@@ -71,27 +76,21 @@ export default function App() {
   );
 }
 
-function FriendsList({ currentFriendsList, selectFriend, splitBillFormOpen }) {
+function FriendsList({ currentFriendsList, onSelection, splitBillFormOpen }) {
   return (
     <ul>
-      {currentFriendsList.map((friend, index) => (
+      {currentFriendsList.map((friend) => (
         <Friend
           friend={friend}
-          selectFriend={selectFriend}
+          onSelection={onSelection}
           splitBillFormOpen={splitBillFormOpen}
-          index={index}
         />
       ))}
     </ul>
   );
 }
 
-function Friend({ friend, selectFriend, splitBillFormOpen, index }) {
-  function selectedFriend(index) {
-    // "Split Bill" Form is opened when a friend is selected
-    splitBillFormOpen(true);
-    selectFriend(index);
-  }
+function Friend({ friend, onSelection }) {
   const { id, name, image, balance } = friend;
 
   return (
@@ -111,13 +110,7 @@ function Friend({ friend, selectFriend, splitBillFormOpen, index }) {
           <p>You and {name} are even </p>
         )}
 
-        <button
-          className="button"
-          value={index}
-          onClick={(e) => selectedFriend(e.target.value)}
-        >
-          Select
-        </button>
+        <Button onClick={() => onSelection(friend)}>Select</Button>
       </li>
     </div>
   );
@@ -190,8 +183,7 @@ function FormSplitBill({
   const [friendExpenses, setFriendsExpenses] = useState("");
   const [selectedPayer, setSelectedPayer] = useState("1");
 
-  const friend = currentFriendsList[selectedFriend];
-  const { name } = friend;
+  const { name } = selectedFriend;
 
   function handleBillValue(data) {
     setBillValue(Number(data));
