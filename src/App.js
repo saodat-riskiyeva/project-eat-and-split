@@ -72,7 +72,7 @@ export default function App() {
         <FormSplitBill
           selectedFriend={selectedFriend}
           setSelectedFriend={setSelectedFriend}
-          splitBillFormOpen={splitBillFormOpen}
+          splitBillFormOpen={setSplitBillFormOpen}
         />
       )}
     </div>
@@ -187,7 +187,7 @@ function FormSplitBill({
 }) {
   const [bill, setBill] = useState("");
   const [paidByUser, setPaidByUser] = useState("");
-  const [friendExpenses, setFriendsExpenses] = useState("");
+  const paidByFriend = bill ? bill - paidByUser : "";
   const [whoIsPaying, setWhoIsPaying] = useState("user");
 
   const { name } = selectedFriend;
@@ -195,13 +195,11 @@ function FormSplitBill({
   // Handling the input of Bill Value
   function handleBillValue(data) {
     setBill(Number(data));
-    setFriendsExpenses(Number(bill - paidByUser));
   }
 
   // Handling the input of my expenses
-  function handleMyExpenses(data) {
-    setPaidByUser(Number(data));
-    setFriendsExpenses(Number(bill - paidByUser));
+  function handleExpensesByUser(data) {
+    setPaidByUser(Number(data) > bill ? paidByUser : Number(data));
   }
 
   // Handling the selection of a Payer
@@ -217,8 +215,8 @@ function FormSplitBill({
     e.preventDefault();
 
     const updatedBalance =
-      whoIsPaying === "1"
-        ? Number(selectedFriend.balance - friendExpenses)
+      whoIsPaying === "user"
+        ? Number(selectedFriend.balance - paidByFriend)
         : Number(selectedFriend.balance + paidByUser);
 
     selectedFriend.balance = updatedBalance;
@@ -244,12 +242,12 @@ function FormSplitBill({
         <input
           type="number"
           value={paidByUser}
-          onChange={(e) => handleMyExpenses(e.target.value)}
+          onChange={(e) => handleExpensesByUser(e.target.value)}
         ></input>
       </>
       <>
         <label>👫{name}'s expenses:</label>
-        <input type="text" value={friendExpenses} disabled></input>
+        <input type="text" value={paidByFriend} disabled></input>
       </>
       <>
         <label>🤑Who's paying the bill?</label>
