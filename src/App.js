@@ -188,7 +188,7 @@ function FormSplitBill({
   const [bill, setBill] = useState("");
   const [paidByUser, setPaidByUser] = useState("");
   const [friendExpenses, setFriendsExpenses] = useState("");
-  const [whoIsPaying, setWhoIsPaying] = useState("1");
+  const [whoIsPaying, setWhoIsPaying] = useState("user");
 
   const { name } = selectedFriend;
 
@@ -253,9 +253,9 @@ function FormSplitBill({
       </>
       <>
         <label>🤑Who's paying the bill?</label>
-        <select id="payer" onChange={(e) => handleSelectedPayer(e)}>
-          <option value="1">You</option>
-          <option value="2">{name}</option>
+        <select onChange={(e) => handleSelectedPayer(e)}>
+          <option value="user">You</option>
+          <option value="friend">{name}</option>
         </select>
       </>
       <button className="button" onClick={(e) => handleSplitBill(e)}>
