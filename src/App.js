@@ -57,6 +57,8 @@ export default function App() {
           : friend
       )
     );
+
+    setSelectedFriend(null);
   }
 
   return (
@@ -81,7 +83,6 @@ export default function App() {
       {selectedFriend && splitBillFormOpen && (
         <FormSplitBill
           selectedFriend={selectedFriend}
-          setSelectedFriend={setSelectedFriend}
           onSplitBill={handleSplitBill}
         />
       )}
@@ -190,7 +191,7 @@ function FormAddFriend({ showAddFriendForm, onToggle, setCurrentFriendsList }) {
   );
 }
 
-function FormSplitBill({ selectedFriend, setSelectedFriend, onSplitBill }) {
+function FormSplitBill({ selectedFriend, onSplitBill }) {
   const [bill, setBill] = useState("");
   const [paidByUser, setPaidByUser] = useState("");
   const paidByFriend = bill ? bill - paidByUser : "";
@@ -220,8 +221,6 @@ function FormSplitBill({ selectedFriend, setSelectedFriend, onSplitBill }) {
 
     if (!bill || !paidByUser) return;
     onSplitBill(whoIsPaying === "user" ? paidByFriend : -paidByUser);
-
-    setSelectedFriend(null);
   }
 
   return (
