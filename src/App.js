@@ -185,7 +185,7 @@ function FormSplitBill({
   setSelectedFriend,
   splitBillFormOpen,
 }) {
-  const [billValue, setBillValue] = useState("");
+  const [bill, setBill] = useState("");
   const [myExpenses, setMyExpenses] = useState("");
   const [friendExpenses, setFriendsExpenses] = useState("");
   const [selectedPayer, setSelectedPayer] = useState("1");
@@ -194,14 +194,14 @@ function FormSplitBill({
 
   // Handling the input of Bill Value
   function handleBillValue(data) {
-    setBillValue(Number(data));
-    setFriendsExpenses(Number(billValue - myExpenses));
+    setBill(Number(data));
+    setFriendsExpenses(Number(bill - myExpenses));
   }
 
   // Handling the input of my expenses
   function handleMyExpenses(data) {
     setMyExpenses(Number(data));
-    setFriendsExpenses(Number(billValue - myExpenses));
+    setFriendsExpenses(Number(bill - myExpenses));
   }
 
   // Handling the selection of a Payer
@@ -235,7 +235,7 @@ function FormSplitBill({
         <label>💰Bill value:</label>
         <input
           type="number"
-          value={billValue}
+          value={bill}
           onChange={(e) => handleBillValue(Number(e.target.value))}
         ></input>
       </>
